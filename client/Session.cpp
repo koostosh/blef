@@ -75,12 +75,13 @@ void Session::input(std::string text)
         m_connectionstate = CSTATE_USERNAME;
         break;
     case CSTATE_USERNAME: // user
-        printf("Enter password\n");
+        printf("Enter password\e[8m\n");
         m_username = text;
         m_connectionstate = CSTATE_PASSWORD;
         break;
     case CSTATE_PASSWORD: // pass
     {
+        printf("\e[28m");
         if (m_sender.open_socket(m_remoteAddress.c_str(), DEFAULT_PORT))
         {
             printf("connected!\n");
