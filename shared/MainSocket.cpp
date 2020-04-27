@@ -99,7 +99,7 @@ bool MainSocket::recv(IOPacket* in)
         delete[] partialPacket;
         if (m_enryptHeaders)
             decrypt(in->m_storage, currentSize);
-        m_hasHeader = true;
+        m_hasHeader = false;
         return true;
     }
 }
