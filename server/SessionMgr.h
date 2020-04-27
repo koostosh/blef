@@ -33,6 +33,6 @@ private:
     Board*             m_board;
 
     // account management
-    void loadFromTxt(char* file);
+    void loadFromTxt(const char* file);
     std::list<AccountData> m_accounts;
 };

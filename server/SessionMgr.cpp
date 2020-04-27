@@ -5,7 +5,7 @@
 #include "Session.h"
 #include "Board.h"
 
-void SessionMgr::loadFromTxt(char* file)
+void SessionMgr::loadFromTxt(const char* file)
 {
     FILE* pFile = fopen(file, "r");
     if (!pFile)
