@@ -1,5 +1,6 @@
 *.pid
 
+users.txt
 # Created by https://www.gitignore.io/api/c++,vim
 # Edit at https://www.gitignore.io/?templates=c++,vim
 

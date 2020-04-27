@@ -7,7 +7,7 @@ bool MainSocket::recv(IOPacket* in)
     if (!m_connected)
         return false;
 
-    if (partialLength == 0) // starting new packet
+    if (partialLength == -1) // starting new packet
     {
         if (headerLength == 0) // starting new header
         {
@@ -76,6 +76,7 @@ bool MainSocket::recv(IOPacket* in)
         delete[] partialPacket;
         if (m_enryptHeaders)
             decrypt(in->m_storage, currentSize);
+        partialLength = -1;
         return true;
     }
     else // not whole data was received last time
@@ -97,6 +98,7 @@ bool MainSocket::recv(IOPacket* in)
         delete[] partialPacket;
         if (m_enryptHeaders)
             decrypt(in->m_storage, currentSize);
+        partialLength = -1;
         return true;
     }
 }

@@ -6,7 +6,7 @@ class IOPacket;
 class MainSocket : public BaseSocket
 {
 public:
-    MainSocket(): index_s(0), index_r(0), last_s(0), last_r(0), partialLength(0), headerLength(0), currentSize(0), m_enryptHeaders(false)
+    MainSocket(): index_s(0), index_r(0), last_s(0), last_r(0), partialLength(-1), headerLength(0), currentSize(0), m_enryptHeaders(false)
     {
         memset(headerKey, 0, 20);
         partialPacket = NULL;
