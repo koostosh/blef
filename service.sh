@@ -13,7 +13,7 @@ EXEC="$basedir/server.out"
 
 case "$action" in
     start)
-        /sbin/start-stop-daemon --pidfile "$PIDFILE" --start --background --make-pidfile --oknodo --exec "$EXEC" -- "$@"
+        /sbin/start-stop-daemon --chdir "$basedir" --pidfile "$PIDFILE" --start --background --make-pidfile --oknodo --exec "$EXEC" -- "$@"
         ;;
     stop)
         /sbin/start-stop-daemon --pidfile "$PIDFILE" --stop --signal TERM --oknodo --exec "$EXEC"
