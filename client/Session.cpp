@@ -1,3 +1,4 @@
+#include "Format.h"
 #include "Session.h"
 #include "CAuthHandler.h"
 #include "Util.h"
@@ -14,11 +15,11 @@ void Session::InitData(char* p_host, char* p_user, char* p_pass)
     m_username = p_user;
     if (m_sender.open_socket(p_host, DEFAULT_PORT))
     {
-        printf("connected!\n");
+        printf(MSG_INFO("connected!"));
     }
     else
     {
-        printf( "cannot connect\n");
+        printf(MSG_ERROR("cannot connect"));
         m_connectionstate = CSTATE_DISCONECTED;
     }
     IOPacket l_auth;
@@ -35,7 +36,7 @@ void Session::Update()
     case CSTATE_DISCONECTED: // not connected
         break;
     case CSTATE_FIST_TICK: // first tick
-        printf("Enter host address\n");
+        printf(MSG_PROMPT("Enter host address"));
         m_connectionstate = CSTATE_HOSTNAME;
         break;
     case CSTATE_AUTH: // during auth
@@ -58,7 +59,7 @@ void Session::Update()
         if (!m_sender.isConnected())
         {
             m_connectionstate = CSTATE_DISCONECTED;
-            printf("Connection lost\n");
+            printf(MSG_ERROR("Connection lost"));
         }
         break;
     }
@@ -71,25 +72,25 @@ void Session::input(std::string text)
     {
     case CSTATE_HOSTNAME: // host
         m_remoteAddress = text;
-        printf("Enter username\n");
+        printf(MSG_PROMPT("Enter username"));
         m_connectionstate = CSTATE_USERNAME;
         break;
     case CSTATE_USERNAME: // user
-        printf("Enter password\e[8m\n");
+        printf(MSG_PROMPT("Enter password") TEXT_HIDDEN);
         m_username = text;
         m_connectionstate = CSTATE_PASSWORD;
         break;
     case CSTATE_PASSWORD: // pass
     {
-        printf("\e[28m");
+        printf(TEXT_VISIBLE);
         if (m_sender.open_socket(m_remoteAddress.c_str(), DEFAULT_PORT))
         {
-            printf("connected!\n");
+            printf(MSG_INFO("connected!"));
         }
         else
         {
-            printf("cannot connect\n");
-            printf("%s\n", hashFrom(m_username, text).c_str());
+            printf(MSG_INFO("cannot connect"));
+            printf(MSG("%s"), hashFrom(m_username, text).c_str());
             m_connectionstate = CSTATE_DISCONECTED;
             break;
         }
@@ -123,21 +124,21 @@ void Session::processPacket()
         *m_inPacket >> who >> what;
         std::replace(what.begin(), what.end(), '\n', ' ');
         std::replace(who.begin(), who.end(), '\n', ' ');
-        printf("%s: %s\n", who.c_str(), what.c_str());
+        printf(MSG_INFO_("%s:") MSG(" %s"), who.c_str(), what.c_str());
         break;
     }
     case SMSG_USER_JOINED:
     {
         std::string who;
         *m_inPacket >> who;
-        printf("Player %s joined.\n", who.c_str());
+        printf(MSG_INFO("Player %s joined."), who.c_str());
         break;
     }
     case SMSG_USER_LEFT:
     {
         std::string who;
         *m_inPacket >> who;
-        printf("Player %s left.\n", who.c_str());
+        printf(MSG_INFO("Player %s left."), who.c_str());
         break;
     }
     case MSG_PING_PONG:
@@ -149,7 +150,7 @@ void Session::processPacket()
     {
         std::string state;
         *m_inPacket >> state;
-        printf(">%s<\n", state.c_str());
+        printf(MSG_STATUS(">%s<"), state.c_str());
         break;
     }
     }
@@ -165,10 +166,10 @@ void Session::handleAuth()
         m_connectionstate = CSTATE_CONNECTED;
         memset(m_auth, 0x00, sizeof(CAuthHandler));
         delete m_auth;
-        printf("authorization successful\n");
+        printf(MSG_INFO("authorization successful"));
         break;
     case AUTH_BAD_DATA:
-        printf("autorizing failed, invalid username or password\n");
+        printf(MSG_ERROR("autorizing failed, invalid username or password"));
         m_connectionstate = CSTATE_DISCONECTED;
         break;
     case AUTH_NOT_YET:

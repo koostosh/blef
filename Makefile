@@ -1,13 +1,16 @@
 all: client server
 
-shared:
+shared: config.mk
 	$(MAKE) -C shared
 
-client: shared
+client: shared config.mk
 	$(MAKE) -C client
 
-server: shared
+server: shared config.mk
 	$(MAKE) -C server
+
+%.mk: %.mk.default
+	cat $< > $@
 
 clean:
 	$(MAKE) -C shared clean
