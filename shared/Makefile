@@ -1,3 +1,5 @@
+include ../config.mk
+
 TARGET=../shared.a
 
 CXXFLAGS+=-std=c++11

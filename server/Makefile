@@ -1,3 +1,5 @@
+include ../config.mk
+
 CXXFLAGS+=-I ../shared
 TARGET=../server.out
 

@@ -1,3 +1,4 @@
+#include "Format.h"
 #include "Session.h"
 #include <future>
 #include <iostream>
@@ -15,7 +16,7 @@ int main(int argc, char* argv[])
             if (in.wait_for(std::chrono::milliseconds(100)) == std::future_status::ready)
             {
                 if (std::cin.eof()) {
-                    std::cout << "End of input, Bye!" << std::endl;
+                    std::cout << MSG_INFO_("End of input, Bye!") << std::endl;
                     return 0;
                 }
 
