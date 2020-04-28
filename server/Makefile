@@ -1,7 +1,7 @@
 CXXFLAGS+=-I ../shared
 TARGET=../server.out
 
-CXXFLAGS+=-std=c++11
+CXXFLAGS+=-std=c++11 -Wno-format-security
 LDFLAGS+=-lpthread
 
 SRCS=$(wildcard *.cpp)

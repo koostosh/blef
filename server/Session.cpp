@@ -5,13 +5,14 @@
 #include "MainSocket.h"
 #include "Util.h"
 #include "Board.h"
+#include "Logging.h"
 
 Session::Session(int p_socket, SessionMgr* p_manager) : m_inactiveTimer(0), m_manager(p_manager)
 {
     m_ssid = NewSSID();
     m_auth = new SAuthHandler(p_manager);
     m_socket = new MainSocket(p_socket);
-    printf("ssid%u: creating \n", m_ssid);
+    log("ssid%u: creating \n", m_ssid);
     m_connectionstate = 1;
     m_inPacket = new IOPacket;
 }
@@ -38,7 +39,7 @@ bool Session::update(uint32 p_diff)
         m_inactiveTimer += p_diff;
         if (m_inactiveTimer > MAX_INACTIVITY)
         {
-            printf("ssid%u: kicking due to inactive\n", getSSID());
+            log("ssid%u: kicking due to inactive\n", getSSID());
             return false;
         }
 
@@ -69,7 +70,7 @@ bool Session::update(uint32 p_diff)
         if (m_inactiveTimer > MAX_INACTIVITY)
         {
             m_socket->close_socket();
-            printf("ssid%u: kicking due to inactive\n", getSSID());
+            log("ssid%u: kicking due to inactive\n", getSSID());
         }
         break;
     }
@@ -77,7 +78,7 @@ bool Session::update(uint32 p_diff)
 
     if (!m_socket->isConnected())
     {
-        printf("ssid%u: quiting\n", m_ssid);
+        log("ssid%u: quiting\n", m_ssid);
         if (!m_username.empty())
         {
             IOPacket l_left;
@@ -112,7 +113,7 @@ bool Session::handleAuth()
         m_socket->setKey(m_auth->getKey()); // from now communication is encrypted
         m_username = m_auth->getUsername();
         m_accid = m_auth->getAccid();
-        printf("ssid%u: user \"%s\" authorized; acc id %u\n",
+        log("ssid%u: user \"%s\" authorized; acc id %u\n",
             m_ssid, m_username.c_str(), m_accid);
         memset(m_auth, 0x00, sizeof(SAuthHandler));
         delete m_auth;
@@ -125,14 +126,14 @@ bool Session::handleAuth()
         m_manager->sendToAll(&l_joined);
         if (!m_manager->getBoard()->addPlayer(getAccId(), m_username))
         {
-            printf("ssid%u: cannot add player to board, account %u\n", m_ssid, m_accid);
+            log("ssid%u: cannot add player to board, account %u\n", m_ssid, m_accid);
         }
 
     }
     else if (result != AUTH_NOT_YET)
     {
         // handle problems
-        printf("ssid%u: user \"%s\" unauthorized, result %u\n",
+        log("ssid%u: user \"%s\" unauthorized, result %u\n",
             m_ssid, m_auth->getUsername().c_str(), result);
         return false;
     }

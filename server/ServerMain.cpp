@@ -1,4 +1,5 @@
 #include "ListenerSocket.h"
+#include "Logging.h"
 #include "Session.h"
 #include "BaseSocket.h"		// network_status
 #include "Util.h"			// MessageQueue, getTimeDiff
@@ -13,12 +14,12 @@ void listenerMain(SessionMgr* p_manager)
     int started = me.start_listening(DEFAULT_PORT);
     if (started != 0)
     {
-        printf("could not start listening, error %u\n",errno);
+        log("could not start listening, error %u",errno);
         return;
     }
 
     if (me.isListening())
-        printf("listening...\n");
+        log("listening...");
 
     while (true)
     {
@@ -33,7 +34,7 @@ int main()
     srand(time(NULL));
     SessionMgr l_sessMgr;
 
-    printf("Starting server\n");
+    log("Starting server");
     std::thread listenerThr(listenerMain, &l_sessMgr);
     listenerThr.detach();
 
