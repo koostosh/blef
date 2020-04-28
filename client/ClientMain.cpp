@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
     
     while (true)
     {
-        std::future<std::string> in = std::async([](void){ std::string ret; std::cin >> ret; return ret;});
+        std::future<std::string> in = std::async(std::launch::async, [](void){ std::string ret; std::cin >> ret; return ret;});
         while (true)
         {
             l_sess.Update();
