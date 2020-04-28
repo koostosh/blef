@@ -5,7 +5,7 @@
 int main(int argc, char* argv[])
 {
     Session l_sess;
-    
+
     while (true)
     {
         std::future<std::string> in = std::async(std::launch::async, [](void){ std::string ret; std::getline(std::cin, ret); return ret;});
@@ -15,8 +15,8 @@ int main(int argc, char* argv[])
             if (in.wait_for(std::chrono::milliseconds(100)) == std::future_status::ready)
             {
                 if (std::cin.eof()) {
-                    std::cout << "End of input" << std::endl;
-                    goto quit;  // rage quit
+                    std::cout << "End of input, Bye!" << std::endl;
+                    return 0;
                 }
 
                 l_sess.input(in.get());
@@ -24,8 +24,6 @@ int main(int argc, char* argv[])
             }
         }
     }
-
-quit:
     std::cout << "Bye!" << std::endl;
 
     return 0;
