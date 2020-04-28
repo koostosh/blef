@@ -1,12 +1,12 @@
-all: shared client server
+all: client server
 
 shared:
 	$(MAKE) -C shared
 
-client:
+client: shared
 	$(MAKE) -C client
 
-server:
+server: shared
 	$(MAKE) -C server
 
 clean:
