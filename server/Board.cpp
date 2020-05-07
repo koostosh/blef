@@ -55,6 +55,7 @@ void Board::playerMove(uint32 p_player, std::string text)
 
     if (text == "/reset")
     {
+        sendToAll("game reset by " + m_playerstates[p_player].name);
         Reset();
         sendGlobalState(0,true);
         return;
@@ -69,8 +70,10 @@ void Board::playerMove(uint32 p_player, std::string text)
 
     if (text == "/add" && m_state == STATE_REVEAL)
     {
-        sendToAll("new card for " + m_playerstates[p_player].name);
         m_playerstates[p_player].count = (m_playerstates[p_player].count +1)%6;
+        std::ostringstream ss;
+        ss <<"new card for " << m_playerstates[p_player].name << " (" << int(m_playerstates[p_player].count) << ")";
+        sendToAll(ss.str());
         return;
     }
 
@@ -138,10 +141,13 @@ std::string Board::getGlobalState()
     }
     ss << (m_state == STATE_PLAY ? "Game in play, " : "Waiting for next round, " );
     ss << m_playerstates.size() << " players";
+    int cards=0;
     for (auto i : m_ingame)
     {
         ss << "\n" << m_playerstates[i].name << " : " << int(m_playerstates[i].count) << " card(s)";
+        cards += m_playerstates[i].count;
     }
+    ss << "\n" << cards << " cards total";
     return ss.str();
 }
 
@@ -185,10 +191,31 @@ void Board::reveal()
     ss << "total:\n";
     for (int i =0; i< 24;++i)
     {
-        if (bs.test(i))
+        switch (i)
         {
-            putCard(ss,i);
-            ss << ", ";
+            case 0:
+                ss << "Piki:   "; break;
+            case 6:
+                ss << "Kiery:  "; break;
+            case 12:
+                ss << "Kara:   "; break;
+            case 18:
+                ss << "Trefle: "; break;
+        }
+        switch(i%6)
+        {
+            case 0:
+                ss << (bs.test(i) ? "A " : "  "); break;
+            case 1:
+                ss << (bs.test(i) ? "K " : "  "); break;
+            case 2:
+                ss << (bs.test(i) ? "Q " : "  "); break;
+            case 3:
+                ss << (bs.test(i) ? "J " : "  "); break;
+            case 4:
+                ss << (bs.test(i) ? "10 " : "   "); break;
+            case 5:
+                ss << (bs.test(i) ? "9\n" : "\n"); break;
         }
     }
     sendToAll(ss.str());
