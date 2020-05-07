@@ -4,7 +4,6 @@
 #include <sstream>
 #include <bitset>
 #include <algorithm>
-
 pstate::pstate() : count(0)
 {
     memset(card,0,5);
@@ -29,7 +28,7 @@ bool Board::addPlayer(uint32 p_player, std::string p_name)
     if (itr != m_playerstates.end() || m_state == STATE_WAIT)
     {
         m_playerstates[p_player].name = p_name;
-        sendState(p_player);
+        sendState(p_player, true);
     }
     sendGlobalState(p_player);
     return true;
@@ -109,11 +108,19 @@ void Board::sendGlobalState(uint32 p_player, bool toall)
         m_sm->sendTo(&packet,p_player);
 }
 
-void Board::sendState(uint32 p_player)
+void Board::sendState(uint32 p_player, bool hello)
 {
+    const char hello_world[] =
+         "\n.------..------..------..------.\n"
+         "|K.--. ||N.--. ||P.--. ||B.--. |\n"
+         "| :/\\: || :(): || :/\\: || :(): |\n"
+         "| :\\/: || ()() || (__) || ()() |\n"
+         "| '--'K|| '--'N|| '--'P|| '--'B|\n"
+         "`------'`------'`------'`------'\n";
     std::ostringstream ss;
     //ss << m_playerstates[p_player];
     //std::ostream& operator<<(std::ostream& ss, pstate& ps)
+    if (hello) ss << hello_world;
     ss << "you have " << int(m_playerstates[p_player].count) << " card(s)";
     if (m_state == STATE_PLAY)
     {
