@@ -15,6 +15,8 @@ typedef signed char int8;
 #define DEFAULT_PORT "9412"
 #define MAGIC_GAMEID 78652
 
+#define VERSION "0.2"
+
 #define MAX_INACTIVITY 30000
 #define PING_DELAY 5000
 

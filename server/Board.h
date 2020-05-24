@@ -26,7 +26,8 @@ class Board
 
 
         void Reset();
-        void sendState(uint32 p_player, bool hello =false);
+        void sendState(uint32 p_player);
+        void sendHello(uint32 p_player);
         std::string getGlobalState();
         void sendGlobalState(uint32 p_player, bool toall= false);
         void sendToAll(std::string p_str);

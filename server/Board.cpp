@@ -13,14 +13,6 @@ Board::Board(SessionMgr* p_sm) : m_state(STATE_WAIT), m_sm(p_sm)
 {
 }
 
-void putCard(std::ostream& ss, uint8 card)
-{
-    if (card>24) return;
-    const char* v[] = {"A ", "K ", "Q ", "J ", "10 ", "9 "};
-    const char* c[] = {"Pik", "Kier", "Karo", "Trefl"};
-    ss << v[card%6] << c[card/6];
-}
-
 bool Board::addPlayer(uint32 p_player, std::string p_name)
 {
     if (!p_player) return false;
@@ -28,7 +20,8 @@ bool Board::addPlayer(uint32 p_player, std::string p_name)
     if (itr != m_playerstates.end() || m_state == STATE_WAIT)
     {
         m_playerstates[p_player].name = p_name;
-        sendState(p_player, true);
+        sendHello(p_player);
+        sendState(p_player);
     }
     sendGlobalState(p_player);
     return true;
@@ -108,7 +101,7 @@ void Board::sendGlobalState(uint32 p_player, bool toall)
         m_sm->sendTo(&packet,p_player);
 }
 
-void Board::sendState(uint32 p_player, bool hello)
+void Board::sendHello(uint32 p_player)
 {
     const char hello_world[] =
          "\n.------..------..------..------.\n"
@@ -117,24 +110,25 @@ void Board::sendState(uint32 p_player, bool hello)
          "| :\\/: || ()() || (__) || ()() |\n"
          "| '--'K|| '--'N|| '--'P|| '--'B|\n"
          "`------'`------'`------'`------'\n";
-    std::ostringstream ss;
-    //ss << m_playerstates[p_player];
-    //std::ostream& operator<<(std::ostream& ss, pstate& ps)
-    if (hello) ss << hello_world;
-    ss << "you have " << int(m_playerstates[p_player].count) << " card(s)";
-    if (m_state == STATE_PLAY)
-    {
-        ss << ": ";
-        for (uint8 i =0; i< m_playerstates[p_player].count && i < 5; ++i)
-        {
-            if (i) ss << ", ";
-            putCard(ss, m_playerstates[p_player].card[i]);
-        }
-    }
-
     IOPacket packet;
-    packet.reset(ss.str().length()+1,SMSG_BOARD_STATE);
-    packet << ss.str();
+    packet.reset(sizeof(hello_world),SMSG_BOARD_STATE);
+    packet.append(hello_world, sizeof(hello_world));
+    m_sm->sendTo(&packet,p_player);
+}
+
+void Board::sendState(uint32 p_player)
+{
+    IOPacket packet;
+    packet.reset(5,SMSG_PLAYER_HAND);
+    packet << uint8(m_playerstates[p_player].count);
+
+    std::bitset<24> bs;
+    bs.reset();
+    for (uint8 j =0; j< m_playerstates[p_player].count && j < 5; ++j)
+    {
+        bs.set(m_playerstates[p_player].card[j]);
+    }
+    packet << uint32(bs.to_ulong());
     m_sm->sendTo(&packet,p_player);
 }
 
@@ -181,20 +175,24 @@ void Board::init()
 
 void Board::reveal()
 {
-    std::bitset<24> bs;
-    std::ostringstream ss;
+    std::bitset<24> bs, plbs;
     m_state = STATE_REVEAL;
+    IOPacket packet;
+    packet.reset(10* m_ingame.size(),SMSG_REVEAL);
+    packet << uint8(m_ingame.size());
     for (auto i : m_ingame)
     {
-        ss << m_playerstates[i].name << " : ";
+        plbs.reset();
+        packet << m_playerstates[i].name;
         for (uint8 j =0; j< m_playerstates[i].count && j < 5; ++j)
         {
-            if (j) ss << ", ";
-            putCard(ss, m_playerstates[i].card[j]);
+            plbs.set(m_playerstates[i].card[j]);
             bs.set(m_playerstates[i].card[j]);
         }
-        ss << "\n";
+        packet << uint32(plbs.to_ulong());
     }
+    m_sm->sendToAll(&packet);
+    std::stringstream ss;
     ss << "total:\n";
     for (int i =0; i< 24;++i)
     {

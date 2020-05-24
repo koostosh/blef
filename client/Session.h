@@ -9,7 +9,7 @@ enum connectionState
 
 class CAuthHandler;
 
-class Session 
+class Session
 {
 public:
     Session();
@@ -18,15 +18,17 @@ public:
     void InitData(char* host, char* user, char* pass);
     void Update();
     void input(std::string text);
-private: 
+private:
     void processPacket();
     void handleAuth();
+    void handleReveal();
+    void showHand(uint8 count, uint32 bs);
 
     // variables
     connectionState m_connectionstate;
     std::string     m_username;
     std::string     m_remoteAddress;
-    
+
     // objects
     MainSocket      m_sender;
     CAuthHandler*   m_auth;
