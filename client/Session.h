@@ -1,5 +1,5 @@
 #pragma once
-#include "Defines.h"
+#include "Display.h"
 #include "MainSocket.h"
 
 enum connectionState
@@ -21,8 +21,6 @@ public:
 private:
     void processPacket();
     void handleAuth();
-    void handleReveal();
-    void showHand(uint8 count, uint32 bs);
 
     // variables
     connectionState m_connectionstate;
@@ -33,4 +31,5 @@ private:
     MainSocket      m_sender;
     CAuthHandler*   m_auth;
     IOPacket*       m_inPacket;
+    Display         m_display;
 };

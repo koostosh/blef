@@ -3,27 +3,6 @@
 #include "CAuthHandler.h"
 #include "Util.h"
 #include <algorithm>
-#include <sstream>
-
-void putCard(std::ostream& ss, uint8 card)
-{
-    if (card>24) return;
-    const char* v[] = {"A ", "K ", "Q ", "J ", "10 ", "9 "};
-    const char* c[] = {"Pik", "Kier", "Karo", "Trefl"};
-    ss << v[card%6] << c[card/6];
-}
-
-void putHand(std::ostream& ss, uint32 bs)
-{
-    for (int i = 0; i < 24; ++i)
-    {
-        if (bs & (1 << i))
-        {
-            putCard(ss,i);
-            ss << ", ";
-        }
-    }
-}
 
 Session::Session() : m_connectionstate(CSTATE_FIST_TICK)
 {
@@ -124,6 +103,11 @@ void Session::input(std::string text)
     }
     case CSTATE_CONNECTED: // chat
     {
+        if (text.substr(0,9) == "/display ")
+        {
+            m_display.setMode(std::stoi(text.substr(9)));
+            break;
+        }
         IOPacket io;
         io.reset(text.size() + 1, MSG_TEXT_MESSAGE);
         io << text;
@@ -179,12 +163,23 @@ void Session::processPacket()
         uint8 count;
         uint32 bs;
         *m_inPacket >> count >> bs;
-        showHand(count,bs);
+        m_display.showHand(count,bs);
         break;
     }
     case SMSG_REVEAL:
     {
-        handleReveal();
+        uint8 count;
+        *m_inPacket >> count;
+        std::pair<std::string, uint32>* players = new std::pair<std::string, uint32>[count];
+        for (int i =0; i < count; ++i)
+        {
+            std::string pl;
+            uint32 bs;
+            *m_inPacket >> pl >> bs;
+            players[i] = make_pair(pl, bs);
+        }
+        m_display.showReveal(count, players);
+        delete[] players;
         break;
     }
     default:
@@ -194,31 +189,6 @@ void Session::processPacket()
     }
 }
 
-void Session::showHand(uint8 count, uint32 bs)
-{
-    printf(MSG_STATUS("You have %u card(s)"), count);
-    if (bs == 0) return;
-    std::ostringstream ss;
-    putHand(ss,bs);
-    printf(MSG_STATUS("%s"), ss.str().c_str());
-}
-
-void Session::handleReveal()
-{
-    uint8 count;
-    std::ostringstream ss;
-    *m_inPacket >> count;
-    for (int i =0; i < count; ++i)
-    {
-        std::string player;
-        uint32 hand;
-        *m_inPacket >> player >> hand;
-        ss << player <<" : ";
-        putHand(ss, hand);
-        if (i < count-1) ss << std::endl;
-    }
-    printf(MSG_STATUS("%s"),ss.str().c_str());
-}
 
 void Session::handleAuth()
 {
