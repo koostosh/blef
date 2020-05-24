@@ -1,7 +1,10 @@
 #include "MySha.h"
 #include <cstring>
-#include <x86intrin.h>
 
+uint32 rotl(uint32 i, int b)
+{
+    return (i << b) | (i >> (32-b));
+}
 
 void MySha::Initialize()
 {
@@ -58,12 +61,12 @@ void MySha::Process()
         if (i < 16)
             w[i] = data[4 * i] << 24 | data[4 * i + 1] << 16 | data[4 * i + 2] << 8 | data[4 * i + 3];
         else
-            w[i] = __rold(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16],1);
+            w[i] = rotl(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16],1);
     memcpy((uint32*)a, h, 20);
 
     for (i = 0; i < 80; i++)
     {
-        temp = __rold(a[0], 5) + a[4] + w[i];
+        temp = rotl(a[0], 5) + a[4] + w[i];
         if (i < 20)
         {
             temp += 0x5A827999 + ((a[1] & a[2]) | (~a[1] & a[3]));
@@ -82,7 +85,7 @@ void MySha::Process()
         }
         a[4] = a[3];
         a[3] = a[2];
-        a[2] = __rord(a[1], 2);
+        a[2] = rotl(a[1], 30);
         a[1] = a[0];
         a[0] = temp;
     }
