@@ -45,11 +45,17 @@ void Board::playerMove(uint32 p_player, std::string text)
 
     if (!p_player) return;
 
-    if (text == "/reset")
+    if (text == "/reset" && m_sm->isAdmin(p_player))
     {
         sendToAll("game reset by " + m_playerstates[p_player].name);
         Reset();
         sendGlobalState(0,true);
+        return;
+    }
+
+    if (text == "/reload" && m_sm->isAdmin(p_player))
+    {
+        m_sm->reload();
         return;
     }
 

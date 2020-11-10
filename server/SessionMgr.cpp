@@ -7,6 +7,7 @@
 
 void SessionMgr::loadFromTxt(const char* file)
 {
+    m_accounts.clear();
     FILE* pFile = fopen(file, "r");
     if (!pFile)
         return;
@@ -132,4 +133,14 @@ void SessionMgr::kickAll()
     {
         (*itr)->kick();
     }
+}
+
+bool SessionMgr::isAdmin(uint32 user)
+{
+    return (user < 10);
+}
+
+void SessionMgr::reload()
+{
+    loadFromTxt("users.txt");
 }

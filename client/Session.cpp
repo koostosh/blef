@@ -21,6 +21,7 @@ void Session::InitData(char* p_host, char* p_user, char* p_pass)
     {
         printf(MSG_ERROR("cannot connect"));
         m_connectionstate = CSTATE_DISCONECTED;
+        printf(MSG("%s"), hashFrom(p_user, p_pass).c_str());
     }
     IOPacket l_auth;
     m_auth = new CAuthHandler(m_username, p_pass);
@@ -90,7 +91,6 @@ void Session::input(std::string text)
         else
         {
             printf(MSG_INFO("cannot connect"));
-            printf(MSG("%s"), hashFrom(m_username, text).c_str());
             m_connectionstate = CSTATE_DISCONECTED;
             break;
         }

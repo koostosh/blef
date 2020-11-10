@@ -25,12 +25,15 @@ public:
     void sendTo(IOPacket* what, uint32 who);
     void kickAll();
     Board* getBoard(){ return m_board; };
+
+    bool isAdmin(uint32 user);
+    void reload();
 private:
     bool isValidName(std::string name) const;
 
     std::list<Session*> m_sessionList;
     MessageQueue*       m_socketsQueue;
-    Board*             m_board;
+    Board*              m_board;
 
     // account management
     void loadFromTxt(const char* file);
